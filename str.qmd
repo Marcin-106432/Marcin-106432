@@ -1,0 +1,83 @@
+Świetnie! Rozdzielenie tabeli wyników na osobną stronę z użyciem **MySQL** jest doskonałym pomysłem. W tym przypadku będziemy używać **Node.js**, **Express** i **MySQL** do zapisu wyników i ich wyświetlania.
+
+Poniżej przedstawiam szczegółowy sposób, jak to zrobić:
+
+### 1. Backend: Node.js + MySQL
+
+#### a. Instalacja zależności
+
+Zainstaluj wymagane zależności:
+
+```         
+npm init -y npm install express mysql2 body-parser 
+```
+
+#### b. Utworzenie bazy danych MySQL
+
+Stwórz bazę danych w MySQL:
+
+1.  
+
+2.  Zaloguj się do MySQL:
+
+3.  
+
+```         
+mysql -u root -p 
+```
+
+2.  
+
+3.  Utwórz bazę danych i tabelę:
+
+4.  
+
+```         
+CREATE DATABASE typing_test;  USE typing_test;  CREATE TABLE results (     id INT AUTO_INCREMENT PRIMARY KEY,     name VARCHAR(255),     time_taken INT,     error_count INT,     wpm INT ); 
+```
+
+#### c. Serwer Node.js (`server.js`)
+
+Teraz stworzymy serwer w Node.js, który będzie odpowiedzialny za zapis wyników do bazy MySQL oraz wyświetlanie wyników.
+
+```         
+const express = require('express'); const mysql = require('mysql2'); const bodyParser = require('body-parser');  // Tworzymy aplikację Express const app = express();  // Konfiguracja połączenia z MySQL const db = mysql.createConnection({     host: 'localhost',     user: 'root',     password: 'your_password', // Zmień na swoje hasło     database: 'typing_test' });  // Middleware app.use(bodyParser.json()); app.use(express.static('public')); // Obsługuje pliki statyczne (HTML, CSS)  // Endpoint do zapisywania wyników app.post('/api/results', (req, res) => {     const { name, time_taken, error_count, wpm } = req.body;      const query = `INSERT INTO results (name, time_taken, error_count, wpm) VALUES (?, ?, ?, ?)`;      db.execute(query, [name, time_taken, error_count, wpm], (err, result) => {         if (err) {             console.error('Błąd zapisu do bazy:', err);             return res.status(500).json({ error: 'Błąd zapisu do bazy danych' });         }         res.status(200).json({ message: 'Wyniki zapisane pomyślnie', result: result.insertId });     }); });  // Endpoint do pobierania wyników app.get('/api/results', (req, res) => {     const query = `SELECT * FROM results ORDER BY time_taken ASC`;      db.execute(query, (err, rows) => {         if (err) {             console.error('Błąd pobierania wyników:', err);             return res.status(500).json({ error: 'Błąd pobierania wyników z bazy danych' });         }         res.status(200).json(rows);     }); });  // Uruchomienie serwera const PORT = process.env.PORT || 3000; app.listen(PORT, () => {     console.log(`Serwer działa na porcie ${PORT}`); }); 
+```
+
+Upewnij się, że zmienisz dane połączenia do MySQL, szczególnie **user** i **password**.
+
+### 2. Frontend: Strona z tekstem do przepisania
+
+#### a. Strona HTML z linkiem do wyników
+
+Poniżej zaktualizowany kod HTML z linkiem do strony z wynikami:
+
+```         
+<!DOCTYPE html> <html lang="pl"> <head>     <meta charset="UTF-8">     <meta name="viewport" content="width=device-width, initial-scale=1.0">     <title>Test Pisania</title>     <style>         body {             font-family: Arial, sans-serif;             text-align: center;             margin-top: 50px;         }         .container {             max-width: 600px;             margin: 0 auto;         }         .hidden {             display: none;         }         .results {             margin-top: 20px;         }         #textToType {             font-size: 18px;             font-family: 'Courier New', Courier, monospace;             margin-top: 20px;             padding: 10px;             width: 100%;             height: 100px;             border: 1px solid #ccc;             font-size: 18px;         }         #inputField {             font-size: 18px;             padding: 10px;             width: 100%;             margin-top: 10px;             border: 1px solid #ccc;         }         #startBtn {             padding: 10px 20px;             font-size: 18px;             background-color: #4CAF50;             color: white;             border: none;             cursor: pointer;         }         #startBtn:disabled {             background-color: #ccc;         }         #submitBtn {             padding: 10px 20px;             font-size: 18px;             background-color: #007BFF;             color: white;             border: none;             cursor: pointer;         }         #submitBtn:disabled {             background-color: #ccc;         }         #resultsTable {             margin-top: 30px;             width: 100%;             border-collapse: collapse;         }         #resultsTable th, #resultsTable td {             padding: 8px;             text-align: center;             border: 1px solid #ddd;         }         #resultsTable th {             background-color: #f4f4f4;         }     </style> </head> <body>     <div class="container">         <h1>Test szybkości pisania</h1>         <p>Wpisz swoje imię, aby rozpocząć:</p>         <input type="text" id="nameInput" placeholder="Wpisz swoje imię" />         <button id="startBtn" onclick="startTest()">Start</button>          <div id="typingSection" class="hidden">             <p>Teraz przepisz poniższy tekst:</p>             <p id="textToDisplay"></p>             <textarea id="inputField" placeholder="Przepisz tekst tutaj..." oninput="checkTyping()"></textarea>             <p id="timer">Czas: 0 sekund</p>             <p id="wpm">WPM: 0</p>             <button id="submitBtn" onclick="submitTest()" disabled>Zatwierdź</button>         </div>          <p><a href="/results.html">Zobacz wyniki</a></p>     </div>      <script>         const texts = [             "To jest przykładowy tekst, który trzeba przepisać. Zwróć uwagę na każdy szczegół!",             "Test szybkości pisania jest świetnym sposobem na poprawienie swoich umiejętności.",             "Spróbuj przepisać ten tekst jak najszybciej i bezbłędnie."         ];          let startTime;         let timerInterval;         let errorCount = 0;         let textToType = '';         let userInput = '';         let userName = '';         let wordCount = 0;          function startTest() {             userName = document.getElementById('nameInput').value;             if (userName.trim() === "") {                 alert("Proszę podać imię.");                 return;             }              // Ukryj przycisk start i formularz imienia             document.getElementById('startBtn').disabled = true;             document.getElementById('nameInput').disabled = true;              // Losowanie tekstu do przepisania             textToType = texts[Math.floor(Math.random() * texts.length)];             document.getElementById('textToDisplay').textContent = textToType;              // Pokaż sekcję do pisania             document.getElementById('typingSection').classList.remove('hidden');              // Uruchom timer             startTime = Date.now();             timerInterval = setInterval(updateTimer, 1000);         }          function updateTimer() {             const currentTime = Date.now();             const timeElapsed = Math.floor((currentTime - startTime) / 1000);             document.getElementById('timer').textContent = `Czas: ${timeElapsed} sekund`;              // Aktualizacja wskaźnika WPM             wordCount = getWordCount(userInput);             const minutes = (currentTime - startTime) / 60000;             const wpm = Math.floor(wordCount / minutes);             document.getElementById('wpm').textContent = `WPM: ${wpm}`;         }          function checkTyping() {             userInput = document.getElementById('inputField').value;              // Zliczanie błędów             errorCount = 0;             for (let i = 0; i < userInput.length; i++) {                 if (userInput[i] !== textToType[i]) {                     errorCount++;                 }             }              // Włączenie przycisku zatwierdzenia, jeśli użytkownik skończył pisać             if (userInput.length === textToType.length) 
+```
+
+{ document.getElementById('submitBtn').disabled = false; } }
+
+```         
+    function submitTest() {         const endTime = Date.now();         const timeTaken = Math.floor((endTime - startTime) / 1000);         const wpm = Math.floor(wordCount / ((endTime - startTime) / 60000));          // Zapisz wyniki do bazy         fetch('/api/results', {             method: 'POST',             headers: {                 'Content-Type': 'application/json'             },             body: JSON.stringify({                 name: userName,                 time_taken: timeTaken,                 error_count: errorCount,                 wpm: wpm             })         })         .then(response => response.json())         .then(data => {             alert('Wyniki zapisane pomyślnie!');         })         .catch(error => {             console.error('Błąd zapisu:', error);             alert('Błąd zapisu wyników!');         });     }      function getWordCount(text) {         return text.trim().split(/\s+/).length;     } </script> 
+```
+
+### 3. Strona Wyników
+
+Stwórz plik `results.html`, który będzie odpowiedzialny za wyświetlanie wyników zapisanych w MySQL.
+
+```         
+<!DOCTYPE html> <html lang="pl"> <head>     <meta charset="UTF-8">     <meta name="viewport" content="width=device-width, initial-scale=1.0">     <title>Wyniki Testu Pisania</title>     <style>         body {             font-family: Arial, sans-serif;             text-align: center;             margin-top: 50px;         }         .container {             max-width: 600px;             margin: 0 auto;         }         #resultsTable {             margin-top: 30px;             width: 100%;             border-collapse: collapse;         }         #resultsTable th, #resultsTable td {             padding: 8px;             text-align: center;             border: 1px solid #ddd;         }         #resultsTable th {             background-color: #f4f4f4;         }     </style> </head> <body>     <div class="container">         <h1>Wyniki Testu Pisania</h1>         <table id="resultsTable">             <thead>                 <tr>                     <th>Imię</th>                     <th>Czas (s)</th>                     <th>Błędy</th>                     <th>WPM</th>                 </tr>             </thead>             <tbody></tbody>         </table>         <p><a href="/">Wróć do testu</a></p>     </div>      <script>         window.onload = () => {             fetch('/api/results')                 .then(response => response.json())                 .then(results => {                     const tbody = document.querySelector('#resultsTable tbody');                     results.forEach(result => {                         const row = document.createElement('tr');                         row.innerHTML = `                             <td>${result.name}</td>                             <td>${result.time_taken}</td>                             <td>${result.error_count}</td>                             <td>${result.wpm}</td>                         `;                         tbody.appendChild(row);                     });                 })                 .catch(error => {                     console.error('Błąd pobierania wyników:', error);                 });         };     </script> </body> </html> 
+```
+
+### 4. Uruchomienie aplikacji
+
+Uruchom aplikację serwera:
+
+```         
+node server.js 
+```
+
+Teraz aplikacja jest gotowa! Wszyscy użytkownicy mogą wykonywać testy pisania, a wyniki będą zapisywane w bazie danych MySQL i wyświetlane na osobnej stronie.
+
+Zachęcam Cię do testowania i dalszego rozwoju aplikacji!
