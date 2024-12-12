@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Pisania</title>
+    <title>Wirtuoz Pisania</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -29,6 +29,8 @@
             height: 100px;
             border: 1px solid #ccc;
             font-size: 18px;
+            /* Blokowanie zaznaczania tekstu */
+            user-select: none;
         }
         #inputField {
             font-size: 18px;
@@ -84,7 +86,7 @@
         <div id="typingSection" class="hidden">
             <p>Teraz przepisz poniższy tekst:</p>
             <p id="textToDisplay"></p>
-            <textarea id="inputField" placeholder="Przepisz tekst tutaj..." oninput="checkTyping()"></textarea>
+            <textarea id="inputField" placeholder="Przepisz tekst tutaj..." oninput="checkTyping()" disabled></textarea>
             <p id="timer">Czas: 0 sekund</p>
             <p id="wpm">WPM: 0</p>
             <button id="submitBtn" onclick="submitTest()" disabled>Zatwierdź</button>
@@ -125,9 +127,10 @@
         let userInput = '';
         let userName = '';
         let wordCount = 0;
+        let testStarted = false;
 
         function startTest() {
-            userName = document.getElementById('nameInput').value;
+            userName = sanitizeInput(document.getElementById('nameInput').value);
             if (userName.trim() === "") {
                 alert("Proszę podać imię.");
                 return;
@@ -146,20 +149,28 @@
 
             // Uruchom timer
             startTime = Date.now();
-            timerInterval = setInterval(updateTimer, 1000);
+            timerInterval = setInterval(updateTimer, 100);
+
+            // Włącz pole do pisania
+            document.getElementById('inputField').disabled = false;
+            // włącz guzik zatwierdź z opcją poddania
+            document.getElementById('submitBtn').disabled = false;
         }
 
-        function updateTimer() {
-            const currentTime = Date.now();
-            const timeElapsed = Math.floor((currentTime - startTime) / 1000);
-            document.getElementById('timer').textContent = `Czas: ${timeElapsed} sekund`;
+             function updateTimer() {
+              const currentTime = Date.now();
+              const timeElapsed = (currentTime - startTime) / 1000;  // Czas w sekundach
+              const timeElapsedFormatted = timeElapsed.toFixed(2); // Formatowanie do 2 miejsc po przecinku
 
-            // Aktualizacja wskaźnika WPM
-            wordCount = getWordCount(userInput);
-            const minutes = (currentTime - startTime) / 60000;
-            const wpm = Math.floor(wordCount / minutes);
-            document.getElementById('wpm').textContent = `WPM: ${wpm}`;
+              document.getElementById('timer').textContent = `Czas: ${timeElapsedFormatted} sekund`;
+
+           // Aktualizacja wskaźnika WPM
+               wordCount = getWordCount(userInput);
+               const minutes = (currentTime - startTime) / 60000;
+               const wpm = Math.floor(wordCount / minutes);
+               document.getElementById('wpm').textContent = `WPM: ${wpm}`;
         }
+
 
         function checkTyping() {
             userInput = document.getElementById('inputField').value;
@@ -172,42 +183,82 @@
                 }
             }
 
-            // Umożliwienie zatwierdzenia tekstu po zakończeniu
-            if (userInput === textToType) {
+            // Umożliwienie zatwierdzenia tekstu po zakończeniu, tylko jeśli długości są takie same
+            if (userInput.length === textToType.length) {
                 document.getElementById('submitBtn').disabled = false;
             }
         }
 
-        function submitTest() {
-            clearInterval(timerInterval);
-            const endTime = Date.now();
-            const timeTaken = Math.floor((endTime - startTime) / 1000);
-            const wpmCount = Math.floor(wordCount / ((endTime - startTime) / 60000));
+function submitTest() {
+    userInput = document.getElementById('inputField').value;
 
-            // Wyświetlenie wyników
-            document.getElementById('timeTaken').textContent = timeTaken;
-            document.getElementById('errorCount').textContent = errorCount;
-            document.getElementById('wpmCount').textContent = wpmCount;
-            document.getElementById('userName').textContent = userName;
-
-            // Zapisanie wyników do tabeli
-            const resultsTableBody = document.getElementById('resultsBody');
-            const newRow = resultsTableBody.insertRow();
-            newRow.innerHTML = `
-                <td>${userName}</td>
-                <td>${timeTaken}</td>
-                <td>${errorCount}</td>
-                <td>${wpmCount}</td>
-            `;
-
-            // Pokazanie sekcji wyników
-            document.getElementById('resultsSection').classList.remove('hidden');
-            document.getElementById('resultsTable').classList.remove('hidden');
+    // Sprawdzenie, czy długość wpisanego tekstu jest mniejsza niż długość tekstu do przepisania
+    if (userInput.length < textToType.length) {
+        
+        const giveUp = confirm("Zatwierdzić wynik możesz wyłącznie po przepisaniu całego tekstu niezależnie od ilości błędów. Czy chcesz się poddać?");
+        
+        if (giveUp) {
+            displayZeroResults();
         }
+        return;
+    }
+
+    clearInterval(timerInterval);
+    const endTime = Date.now();
+    const timeTaken = (endTime - startTime) / 1000;  // Czas w sekundach
+    const timeTakenFormatted = timeTaken.toFixed(2); // Formatowanie do 2 miejsc po przecinku
+    const wpmCount = Math.floor(wordCount / ((endTime - startTime) / 60000));
+
+    // Wyświetlenie wyników
+    displayResults(timeTakenFormatted, errorCount, wpmCount);
+}
+
+// Funkcja wyświetlająca wyniki z zerami w przypadku poddania się
+function displayZeroResults() {
+    displayResults("0.00", 0, 0);
+}
+
+// Funkcja do wyświetlania wyników
+function displayResults(timeTaken, errorCount, wpmCount) {
+    document.getElementById('timeTaken').textContent = timeTaken;
+    document.getElementById('errorCount').textContent = errorCount;
+    document.getElementById('wpmCount').textContent = wpmCount;
+    document.getElementById('userName').textContent = userName;
+
+    // Zapisanie wyników do tabeli
+    const resultsTableBody = document.getElementById('resultsBody');
+    const newRow = resultsTableBody.insertRow();
+    newRow.innerHTML = `
+        <td>${userName}</td>
+        <td>${timeTaken}</td>
+        <td>${errorCount}</td>
+        <td>${wpmCount}</td>
+    `;
+
+    // Pokazanie sekcji wyników
+    document.getElementById('resultsSection').classList.remove('hidden');
+    document.getElementById('resultsTable').classList.remove('hidden');
+}
 
         function getWordCount(text) {
             return text.split(/\s+/).filter(word => word.length > 0).length;
         }
+
+        // Funkcja do sanitacji wejścia użytkownika (usuwanie niepożądanych znaków)
+        function sanitizeInput(input) {
+            // Usuwanie wszelkich niepożądanych znaków
+            return input.replace(/[^a-zA-Z0-9żźćńółęąśŻŹĆĄŚĘŁÓŃ\s]/g, '');
+        }
+
+        // Zablokowanie kopiowania tekstu (zablokowanie prawego kliknięcia i kopiowania)
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();  // Zablokowanie menu kontekstowego (prawego kliknięcia)
+        });
+
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();  // Zablokowanie kopiowania
+        });
     </script>
 </body>
 </html>
+			
