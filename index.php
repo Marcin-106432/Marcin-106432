@@ -22,15 +22,15 @@ require 'db.php';
         <p>Wybierz swoją drużynę:</p>
         
 <select id="teamSelect">
-<option value="Drużyna 1">Astronomia i Fizyka</option>
-<option value="Drużyna 2">Biologia</option>
-<option value="Drużyna 3">Biotechnologia</option>
-<option value="Drużyna 4">Informatyka i ekonometria</option>
-<option value="Drużyna 5">Inżynieria danych</option>
-<option value="Drużyna 6">Matematyka</option>
-<option value="Drużyna 7">Sport i Wychowanie fizyczne</option>
-<option value="Drużyna 8">Turystyka i rekreacja</option>
-<option value="Drużyna 9">Żywienie człowieka i dietoterapia</option>
+<option value="AiF">Astronomia i Fizyka</option>
+<option value="Bio">Biologia</option>
+<option value="BioTech">Biotechnologia</option>
+<option value="IiE">Informatyka i ekonometria</option>
+<option value="ID">Inżynieria danych</option>
+<option value="Mat">Matematyka</option>
+<option value="WF">Sport i Wychowanie fizyczne</option>
+<option value="TiR">Turystyka i rekreacja</option>
+<option value="ZCiD">Żywienie człowieka i dietoterapia</option>
 </select>
 </input>
         <button id="startBtn" onclick="startTest()">Start</button>
