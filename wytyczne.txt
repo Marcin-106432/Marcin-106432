@@ -1,8 +1,8 @@
 //wytyczne
-1. przepisać do index.php
-2. dodać integrację z bazą danych
+1. przepisać do index.php.................... DONE
+2. dodać integrację z bazą danych............... DEBUG
 3. oddzielić tabele wyników jako tabela.php
-4. dodać niezbędne poprawki i usprawnienia
+4. dodać niezbędne poprawki i usprawnienia.......... TEST PENDING
 5. popracować nad CSS
 6. dodać integrację z tabelą wyników ogólnych
 7. zliczanie kar i bonusów za znaki diakrytyczne
