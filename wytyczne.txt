@@ -7,3 +7,4 @@
 6. dodać integrację z tabelą wyników ogólnych
 7. zliczanie kar i bonusów za znaki diakrytyczne
 8. dodać legendę z zasadami
+9. dodać listę kierunków i odpowiednie pole w bazie ........... PENDING
