@@ -3,7 +3,7 @@
 2. dodać integrację z bazą danych............... DEBUG
 3. oddzielić tabele wyników jako tabela.php
 4. dodać niezbędne poprawki i usprawnienia.......... TEST PENDING
-5. popracować nad CSS
+5. popracować nad CSS ......... DEBUG
 6. dodać integrację z tabelą wyników ogólnych
 7. zliczanie kar i bonusów za znaki diakrytyczne
 8. dodać legendę z zasadami
