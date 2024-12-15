@@ -8,3 +8,14 @@
 7. zliczanie kar i bonusów za znaki diakrytyczne
 8. dodać legendę z zasadami
 9. dodać listę kierunków i odpowiednie pole w bazie ........... PENDING
+
+
+zmiany:
+dodanie kolumny 'sent_reply', bedziesz przechowywać suorwy tekst który przesłał użytkownik
+dodanie kolumny 'task_content', będzie przechowywać tekst który trzeba było przepisać
+
+
+Sugestie:
+- TEST: User ma możliwość wysłania odpowdzi w każdej chwili, niezależnie od etapu pisania
+- TEST: User ma ograniczony czas odpowiedzi, po którym następuja automatyczne wysłanie odpowiedzi
+

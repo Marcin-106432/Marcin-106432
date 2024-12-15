@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Porównywania Tekstu</title>
+</head>
+<body>
+    <h1>Test Porównywania Tekstu</h1>
+    <textarea id="originalText" rows="5" cols="50" placeholder="Wpisz oryginalny tekst"></textarea><br>
+    <textarea id="userText" rows="5" cols="50" placeholder="Wpisz tekst użytkownika"></textarea><br>
+    <button id="compareButton">Porównaj</button>
+    <p id="result"></p>
+    <h2>Różnice:</h2>
+    <div id="differences"></div>
+
+    <!-- Ładowanie zewnętrznego pliku JavaScript -->
+    <script src="text_compare.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/diff"></script>
+
+</body>
+</html>
