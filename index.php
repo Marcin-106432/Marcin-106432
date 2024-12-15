@@ -2,7 +2,7 @@
 header('Content-Type: text/html; charset=utf-8');
 
 // Database connection
-//require 'db.php';
+require 'db.php';
 ?>
 <!DOCTYPE html>
 <html lang="pl">
