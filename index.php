@@ -11,7 +11,7 @@ require 'db.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wirtuoz Pisania</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="text_compare.js"></script>
+    <script src="/text_compare.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/diff"></script>
 </head>
 <body>
