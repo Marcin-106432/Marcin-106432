@@ -66,17 +66,11 @@ function calculateScore(original, userInput, duration) {
     // Oblicz końcowy wynik z wagami
     const textAcc = sentenceAcc * 0.5 + wordAcc * 0.5; // 50/50 wagi
 
-    // Stałe wartości do obliczania punktów na podstawie czasu
-    const maxBonusTime = 30; // Maksymalny bonus za czas
-    const maxTime = 60; // Maksymalny czas referencyjny w sekundach (np. 1 minuta)
-    const weightAccuracy = 0.6; // Waga dokładności
-    const weightTime = 0.4; // Waga czasu
-
     // Obliczenie bonusu za czas
-    const timeBonus = Math.max(0, maxBonusTime * (1 - (duration / maxTime)));
+    const timeBonus = calculateTimeBonus(duration);
 
     // Obliczenie ostatecznej punktacji
-    const finalScore = textAcc * 100 * weightAccuracy + timeBonus * weightTime;
+    const finalScore = textAcc * 70 + timeBonus;
 
     return {
         sentenceAcc: parseFloat((sentenceAcc * 100).toFixed(2)),
@@ -86,6 +80,21 @@ function calculateScore(original, userInput, duration) {
         finalScore: parseInt(finalScore),
         errorCount: totalErrors 
     };
+}
+
+function calculateTimeBonus(duration) {
+    const maxBonusTime = 30; // Maksymalny bonus
+    const thresholdTime = 30; // Czas, do którego bonus jest maksymalny
+    const maxTime = 60; // Czas, po którym bonus wynosi 0
+
+    if (duration <= thresholdTime) {
+        return maxBonusTime; // Maksymalny bonus do 20 sekund
+    } else if (duration <= maxTime) {
+        // Liniowy spadek od 20s do 60s
+        return Math.max(0, maxBonusTime * (1 - (duration - thresholdTime) / (maxTime - thresholdTime)));
+    } else {
+        return 0; // Bonus wynosi 0 po 60 sekundach
+    }
 }
 
 
