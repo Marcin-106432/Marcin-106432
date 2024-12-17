@@ -122,6 +122,11 @@ button:disabled {
     color: #2e7d32;
 }
 
+#compareSection {
+    margin-top: 3vh;
+    background-color: #f0f0f0;
+}
+
 /* Media Queries for Responsiveness */
 @media screen and (max-width: 600px) {
     .container {
