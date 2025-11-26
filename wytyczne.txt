@@ -1,0 +1,35 @@
+//wytyczne
+1. przepisać do index.php.................... DONE
+2. dodać integrację z bazą danych............... DEBUG
+3. oddzielić tabele wyników jako tabela.php
+4. dodać niezbędne poprawki i usprawnienia.......... TEST PENDING
+5. popracować nad CSS ......... DEBUG
+6. dodać integrację z tabelą wyników ogólnych
+7. zliczanie kar i bonusów za znaki diakrytyczne
+8. dodać legendę z zasadami
+9. dodać listę kierunków i odpowiednie pole w bazie ........... PENDING
+
+
+zmiany:
+dodanie kolumny 'sent_reply', bedziesz przechowywać suorwy tekst który przesłał użytkownik
+dodanie kolumny 'task_content', będzie przechowywać tekst który trzeba było przepisać
+
+
+Sugestie:
+- TEST: User ma możliwość wysłania odpowdzi w każdej chwili, niezależnie od etapu pisania
+- TEST: User ma ograniczony czas odpowiedzi, po którym następuja automatyczne wysłanie odpowiedzi
+
+
+
+
+Zasady punktacji
+
+Twoja punktacja zależy od dokładności i szybkości pisania.
+
+    Dokładność – za poprawnie przepisane zdania i słowa zdobywasz punkty. Błędy, takie jak literówki czy brakujące znaki, obniżają wynik.
+
+    Bonus za czas – jeśli skończysz w 30 sekund, otrzymasz dodatkowe 30 punktów. Powyżej tego czasu bonus maleje, aż do 0 punktów po 60 sekundach.
+
+    Wynik końcowy – za bezbłędnie przepisany tekst dostaniesz 70 punktów. Dodatkowe 30 punktów za szybkość pozwolą Ci osiągnąć maksymalny wynik 100 punktów.
+
+Pamiętaj: Precyzja i szybkość to klucz do sukcesu!
