@@ -11,6 +11,8 @@ require 'db.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wirtuoz Pisania</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="/text_compare.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/diff"></script>
 </head>
 <body>
 <button onclick="window.location.href='tabela.php'">Zobacz tabelę wyników</button>
@@ -45,7 +47,7 @@ require 'db.php';
                 <p id="accuracy">Dokładność: 100%</p>
             </div>
             <div class="button-group">
-                <button id="submitBtn" onclick="submitTest()" disabled>Zatwierdź</button>
+                <button id="submitBtn" onclick="submitTest()">Zatwierdź</button>
                 <button id="giveUpBtn" onclick="giveUp()">Poddaj się</button>
                 <button id="resetBtn" onclick="resetTest()">Reset</button>
             </div>
@@ -57,8 +59,11 @@ require 'db.php';
             <p>Błędy: <span id="errorCount"></span></p>
             <p>Słowa na minutę: <span id="wpmCount"></span></p>
             <p>Dokładność: <span id="accuracyResult"></span>%</p>
+            <p>Dodatkowe punkty za czas: <span id="bonusTimePoints"></span></p>
+            <p>Punkty: <span id="pointsResult"></span></p>
             <p>Imię: <span id="userName"></span></p>
         </div>
+        <div id="compareSection"></div>
 
         <form id="resultForm" action="save_results.php" method="POST">
             <input type="hidden" name="userName" id="formUserName">
@@ -72,7 +77,7 @@ require 'db.php';
     <script>
         let startTime;
         let timerInterval;
-        let errorCount = 0;
+        //let errorCount = 0;
         let totalCharacters = 0;
         let correctCharacters = 0;
         let textToType = '';
@@ -107,11 +112,11 @@ require 'db.php';
             document.getElementById('wpm').textContent = `WPM: ${calculateWPM()}`;
 
             // Warunek zatwierdzenia
-            if (userInput.trim() === textToType.trim()) {
-                document.getElementById('submitBtn').disabled = false;
-            } else {
-                document.getElementById('submitBtn').disabled = true;
-            }
+            // if (userInput.trim() === textToType.trim()) {
+            //     document.getElementById('submitBtn').disabled = false;
+            // } else {
+            //     document.getElementById('submitBtn').disabled = true;
+            // }
         }
 
         function startTest() {
@@ -136,6 +141,7 @@ require 'db.php';
 
             document.getElementById('textToDisplay').textContent = textToType;
             document.getElementById('inputField').disabled = false;
+            document.getElementById('inputField').value = ''; // wyczyśczenie pola tekstowego 
             document.getElementById('inputField').focus();
 
             startTime = Date.now();
@@ -154,29 +160,54 @@ require 'db.php';
             const name = document.getElementById('nameInput').value;
             const time = parseFloat(document.getElementById('timer').textContent.split(' ')[1]);
             const wpm = calculateWPM();
-            const accuracy = Math.round((correctCharacters / totalCharacters) * 100);
+            
+            userInput = document.getElementById('inputField').value;
+            
+            // source: text_compare
+            const score = calculateScore(textToType, userInput, time);
+            console.log(JSON.stringify(score, null, 2)); // Wyświetlenie obiektu w formacie JSON
+            //const accuracy = Math.round((correctCharacters / totalCharacters) * 100);
+            const accuracy = score.textAcc;
             
             // Wyłączenie przycisku po zatwierdzeniu
             document.getElementById('submitBtn').disabled = true;
-
+            
             // Wypełnienie ukrytych pól formularza
             document.getElementById('timeTaken').textContent = time;
-            document.getElementById('errorCount').textContent = totalCharacters - correctCharacters;
+            document.getElementById('errorCount').textContent = score.errorCount;
             document.getElementById('wpmCount').textContent = wpm;
             document.getElementById('accuracyResult').textContent = accuracy;
+            document.getElementById('bonusTimePoints').textContent = score.timeBonus;
+            document.getElementById('pointsResult').textContent = score.finalScore;
             document.getElementById('userName').textContent = name;
             document.getElementById('formTeamName').value = document.getElementById('teamSelect').value;
-
-
+            
+            
             document.getElementById('resultsSection').classList.remove('hidden');
             document.getElementById('typingSection').classList.add('hidden');
+            console.log("test");
+
+            // wyświetlenie raportu z porówaniem tekstu
+            document.getElementById('compareSection').innerHTML = showDifferences(textToType, userInput);
+            
+
 
             fetch('submit.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-         body: `name=${encodeURIComponent(name)}&time=${time}&errors=${totalCharacters - correctCharacters}&wpm=${wpm}&accuracy=${accuracy}&team=${encodeURIComponent(document.getElementById('teamSelect').value)}`
+         // body: `name=${encodeURIComponent(name)}&time=${time}&errors=${totalCharacters - correctCharacters}&wpm=${wpm}&accuracy=${accuracy}&team=${encodeURIComponent(document.getElementById('teamSelect').value)}`
+            body:   `name=${encodeURIComponent(name)}&
+                    team=${encodeURIComponent(document.getElementById('teamSelect').value)}&
+                    time_taken=${time}&
+                    errors=${score.errorCount}&
+                    wpm=${wpm}&
+                    acc=${score.textAcc}&
+                    sentence_acc=${score.sentenceAcc}&
+                    word_acc=${score.wordAcc}&
+                    score=${score.finalScore}&
+                    time_bonus=${score.timeBonus}`
         })
         .then(response => response.text())
         .then(data => {
