@@ -1,6 +1,6 @@
 - 👋 Hi, I’m @Marcin-106432
-- 👀 I’m interested in deep machine learning
-- 🌱 I’m currently learning Forecasting and simulation
+- 👀 I’m interested in >PHP<
+- 🌱 I’m currently creating great things avaible soon...
 - 💞️ I’m looking to collaborate on some Java archive
 - ⚡ Fun fact: High-voltage electrician
 
